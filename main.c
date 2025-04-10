@@ -69,7 +69,7 @@ void loop() {
   }
 
   temperatureControl();
-
+  lightControl();
 }
 
 void StopMotor(){
@@ -97,7 +97,7 @@ void BeltControl(){
 }
 
 void temperatureControl(){
-    int temperature = analogRead(temperaturePin); 
+    int temperature = analogRead(temperaturePin); //
     if(temperature > 25){
         lcd.print("Sıcaklık: %d°C - Klima Açıldı",temperature);
         digitalWrite(klimaPin,HIGH);
@@ -109,6 +109,13 @@ void temperatureControl(){
 }
 
 void lightControl(){
-    int light_value = analogRead(temperaturePin);  
+    int light_value = analogRead(lightPin); //
+    if(light_value <= 250){
+      digitalWrite(blueLED,HIGH);
+      lcd.print("Farlar Açık");
+  }
+  else{
+      digitalWrite(blueLED,LOW);
+      lcd.print("Farlar Kapandı");
+  }
 }
-
