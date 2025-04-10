@@ -6,7 +6,7 @@ int beltButton = 3; // Emniyet kemeri butonu
 int cardoorSwitch = 4; // Kapı durumu anahtarı
 
 int temperaturePin = A0;  // Sıcaklık sensörü (analog)
-int ldrPin = A1;          // Işık sensörü (analog)
+int lightPin = A1;          // Işık sensörü (analog)
 int potPin = A2;          // Potansiyometre (yakıt seviyesi, analog)
 
 
@@ -106,5 +106,9 @@ void temperatureControl(){
         digitalWrite(klimaPin,LOW);
         lcd.clear();
     }
+}
+
+void lightControl(){
+    int light_value = analogRead(temperaturePin);  
 }
 
