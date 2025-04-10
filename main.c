@@ -7,7 +7,7 @@ int cardoorSwitch = 4; // Kapı durumu anahtarı
 
 int temperaturePin = A0;  // Sıcaklık sensörü (analog)
 int lightPin = A1;          // Işık sensörü (analog)
-int potPin = A2;          // Potansiyometre (yakıt seviyesi, analog)
+int fuelPin = A2;          // Potansiyometre (yakıt seviyesi, analog)
 
 
 //FOR OUTPUT
@@ -42,8 +42,8 @@ void setup() {
   pinMode(cardoorSwitch, INPUT);
 
   pinMode(temperaturePin, INPUT);
-  pinMode(ldrPin, INPUT);
-  pinMode(potPin, INPUT);
+  pinMode(lightPin, INPUT);
+  pinMode(fuelPin, INPUT);
 
   pinMode(redLED, OUTPUT);
   pinMode(blueLED, OUTPUT);
@@ -70,6 +70,7 @@ void loop() {
 
   temperatureControl();
   lightControl();
+  fuelControl();
 }
 
 void StopMotor(){
@@ -118,4 +119,33 @@ void lightControl(){
       digitalWrite(blueLED,LOW);
       lcd.print("Farlar Kapandı");
   }
+}
+
+void fuelControl(){
+  int fuelValue = analogRead(fuelPin); // Potansiyometreden analog değeri oku (0-1023)
+
+  float fuelLevel = ( fuelValue / 1023.0) / 100.0; // % cinsinden yakıt seviyesi
+
+  if(fuelLevel == 0){
+      digitalWrite(yellowLED,HIGH);
+      lcd.print("Uyarı: Yakıt Seviyesi Düşük - \%%d",fuelLevel);
+  }
+  else if(fuelLevel < 5){
+      digitalWrite(yellowLED,HIGH);
+      delay(100);
+      digitalWrite(yellowLED,LOW);
+
+      lcd.print("Kritik: Yakıt Çok Az - \%%d",fuelLevel);
+  }
+  else if(fuelLevel < 10){
+      if(motorStarted){
+          StopMotor();
+      }
+      lcd.print("Yakıt Bitti - Motor Durdu");
+      digitalWrite(redLED,LOW);
+      digitalWrite(blueLED,LOW);
+      digitalWrite(yellowLED,LOW);
+      digitalWrite(pinkLED,LOW);
+  }
+
 }
