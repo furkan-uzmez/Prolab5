@@ -1,11 +1,11 @@
 // Pin tanımlamaları (global kapsamda)
 
 //FOR INPUT 
-int engineButton = 2; // DC motor (araç motoru ve klima fanı)
+int engineButton = 2; // DC motor (araç motoru)
 int beltButton = 3; // Emniyet kemeri butonu
 int cardoorSwitch = 4; // Kapı durumu anahtarı
 
-int lm35Pin = A0;         // Sıcaklık sensörü (analog)
+int temperaturePin = A0;  // Sıcaklık sensörü (analog)
 int ldrPin = A1;          // Işık sensörü (analog)
 int potPin = A2;          // Potansiyometre (yakıt seviyesi, analog)
 
@@ -18,15 +18,16 @@ int pinkLED = 8; // Kapaının açık olduğunu gösteren RGB LED
 
 
 int buzzer = 9; // Sesli uyarı için buzzer 
-int motorPin = 10; // DC motor (araç motoru ve klima fanı)
+int motorPin = 10; // DC motor (araç motoru)
+int klimaPin = 11; // DC motor (klima fanı)
 
 // LCD pinleri (örnek olarak)
-int lcdRS = 11;
-int lcdEN = 12;
-int lcdD4 = 13;
-int lcdD5 = 14;
-int lcdD6 = 15;
-int lcdD7 = 16;
+int lcdRS = 12;
+int lcdEN = 13;
+int lcdD4 = 14;
+int lcdD5 = 15;
+int lcdD6 = 16;
+int lcdD7 = 17;
 
 // Kütüphane ve nesne tanımlama
 #include <LiquidCrystal.h>
@@ -40,7 +41,7 @@ void setup() {
   pinMode(beltButton, INPUT);
   pinMode(cardoorSwitch, INPUT);
 
-  pinMode(lm35Pin, INPUT);
+  pinMode(temperaturePin, INPUT);
   pinMode(ldrPin, INPUT);
   pinMode(potPin, INPUT);
 
@@ -51,7 +52,8 @@ void setup() {
 
   pinMode(buzzer, OUTPUT);
   pinMode(motorPin, OUTPUT);
-  
+  pinMode(klimaPin, OUTPUT);
+
   lcd.begin(16, 2); // LCD’yi başlat
 }
 
@@ -65,6 +67,8 @@ void loop() {
         StopMotor();
     }
   }
+
+  temperatureControl();
 
 }
 
@@ -91,3 +95,16 @@ void BeltControl(){
         motorStarted = true;
     }
 }
+
+void temperatureControl(){
+    int temperature = analogRead(temperaturePin); 
+    if(temperature > 25){
+        lcd.print("Sıcaklık: %d°C - Klima Açıldı",temperature);
+        digitalWrite(klimaPin,HIGH);
+    }
+    else{
+        digitalWrite(klimaPin,LOW);
+        lcd.clear();
+    }
+}
+
