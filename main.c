@@ -143,25 +143,24 @@ void fuelControl(){
   float fuelLevel = ( fuelValue / 1023.0) * 100.0; // % cinsinden yakıt seviyesi
 
   if(fuelLevel == 0){
-      digitalWrite(yellowLED,HIGH);
-      lcd.print("Uyarı: Yakıt Seviyesi Düşük - \%%d",fuelLevel);
-  }
-  else if(fuelLevel < 5){
-      digitalWrite(yellowLED,HIGH);
-      delay(100);
-      digitalWrite(yellowLED,LOW);
-
-      lcd.print("Kritik: Yakıt Çok Az - \%%d",fuelLevel);
-  }
-  else if(fuelLevel < 10){
       if(motorStarted){
-          StopMotor();
+        StopMotor();
       }
       lcd.print("Yakıt Bitti - Motor Durdu");
       digitalWrite(redLED,LOW);
       digitalWrite(blueLED,LOW);
       digitalWrite(yellowLED,LOW);
       digitalWrite(pinkLED,LOW);
+  }
+  else if(fuelLevel < 5){
+      digitalWrite(yellowLED,HIGH);
+      digitalWrite(yellowLED,LOW);
+
+      lcd.print("Kritik: Yakıt Çok Az - \%%d",fuelLevel);
+  }
+  else if(fuelLevel < 10){
+      digitalWrite(yellowLED,HIGH);
+      lcd.print("Uyarı: Yakıt Seviyesi Düşük - \%%d",fuelLevel);
   }
 
 }
