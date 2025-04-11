@@ -34,6 +34,7 @@ int lcdD7 = 17;
 LiquidCrystal lcd(lcdRS, lcdEN, lcdD4, lcdD5, lcdD6, lcdD7);
 
 bool motorStarted = false;
+int is_motor_button_pressed = 0;
 
 void setup() {
   // Pin modlarını ayarlama
@@ -58,7 +59,8 @@ void setup() {
 }
 
 void loop() {
-  int is_motor_button_pressed = digitalRead(engineButton);
+  is_motor_button_pressed = digitalRead(engineButton);
+  doorControl();
   if(is_motor_button_pressed == HIGH){
     BeltControl();
   }
@@ -112,13 +114,27 @@ void temperatureControl(){
 void lightControl(){
     int light_value = analogRead(lightPin); //
     if(light_value <= 250){
-      digitalWrite(blueLED,HIGH);
-      lcd.print("Farlar Açık");
-  }
-  else{
-      digitalWrite(blueLED,LOW);
-      lcd.print("Farlar Kapandı");
-  }
+        digitalWrite(blueLED,HIGH);
+        lcd.print("Farlar Açık");
+    }
+    else{
+        digitalWrite(blueLED,LOW);
+        lcd.print("Farlar Kapandı");
+    }
+}
+
+void doorControl(){
+      int is_door_open = digitalRead(cardoorSwitch);
+      if(is_door_open){
+        digitalWrite(pinkLED,HIGH);
+        lcd.print("Uyarı: Kapı Açık - Motor Çalışmaz");
+        is_motor_button_pressed = 0;
+      }
+      else{
+        digitalWrite(pinkLED,LOW);
+        lcd.clear();
+        is_motor_button_pressed = 1;
+      }
 }
 
 void fuelControl(){
