@@ -34,7 +34,7 @@ int lcdD7 = 17;
 LiquidCrystal lcd(lcdRS, lcdEN, lcdD4, lcdD5, lcdD6, lcdD7);
 
 bool motorStarted = false;
-int is_motor_button_pressed = 0;
+bool is_motor_button_enabled = true;
 
 void setup() {
   // Pin modlarını ayarlama
@@ -59,9 +59,9 @@ void setup() {
 }
 
 void loop() {
-  is_motor_button_pressed = digitalRead(engineButton);
+  int is_motor_button_pressed = digitalRead(engineButton);
   doorControl();
-  if(is_motor_button_pressed == HIGH){
+  if(is_motor_button_enabled && is_motor_button_pressed == HIGH){
     BeltControl();
   }
   else {
@@ -128,19 +128,19 @@ void doorControl(){
       if(is_door_open){
         digitalWrite(pinkLED,HIGH);
         lcd.print("Uyarı: Kapı Açık - Motor Çalışmaz");
-        is_motor_button_pressed = 0;
+        is_motor_button_enabled = false;
       }
       else{
         digitalWrite(pinkLED,LOW);
         lcd.clear();
-        is_motor_button_pressed = 1;
+        is_motor_button_enabled = true;
       }
 }
 
 void fuelControl(){
   int fuelValue = analogRead(fuelPin); // Potansiyometreden analog değeri oku (0-1023)
 
-  float fuelLevel = ( fuelValue / 1023.0) / 100.0; // % cinsinden yakıt seviyesi
+  float fuelLevel = ( fuelValue / 1023.0) * 100.0; // % cinsinden yakıt seviyesi
 
   if(fuelLevel == 0){
       digitalWrite(yellowLED,HIGH);
