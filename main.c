@@ -105,20 +105,22 @@ void BeltControl() {
 }
 
 void BeltSituation(){
-    char buffer[64];
-
     if(is_wear_belt == false){
         digitalWrite(buzzer,HIGH);
         digitalWrite(redLED,HIGH);
-        sprintf(buffer, "Emniyet Kemeri Takılı Değil!");
-        lcd.print(buffer);
+        lcd.clear();
+        lcd.setCursor(0, 0);
+        lcd.print("KemerTakiliDegil");
+        lcd.setCursor(0, 1);
+        lcd.print("Motor Calismaz!");
+        delay(1000);
         digitalWrite(buzzer,LOW);
         
     }
     else{
         digitalWrite(buzzer,LOW);
         digitalWrite(redLED,LOW);
-        //lcd.clear();
+        lcd.clear();
         digitalWrite(motorPin,HIGH);
         motorStarted = true;
     }
@@ -129,7 +131,7 @@ void temperatureControl(){
     if(temperature > 25){
         char buffer[32];
         sprintf(buffer, "Sicaklik: %dC - Klima Acildi", temperature);
-        lcd.print(buffer);
+        //lcd.print(buffer);
         digitalWrite(klimaPin,HIGH);
     }
     else{
@@ -142,11 +144,11 @@ void lightControl(){
     int light_value = analogRead(lightPin); //
     if(light_value <= 250){
         digitalWrite(blueLED,HIGH);
-        lcd.print("Farlar Açık");
+        //lcd.print("Farlar Açık");
     }
     else{
         digitalWrite(blueLED,LOW);
-        lcd.print("Farlar Kapandı");
+        //lcd.print("Farlar Kapandı");
     }
 }
 
@@ -154,12 +156,17 @@ void doorControl(){
       int is_door_open = digitalRead(cardoorSwitch);
       if(is_door_open == HIGH){
         digitalWrite(pinkLED,HIGH);
-        lcd.print("Uyarı: Kapı Açık - Motor Çalışmaz");
+        lcd.clear();
+        lcd.setCursor(0, 0);
+        lcd.print("Uyari: Kapi Acik");
+        lcd.setCursor(0, 1);
+        lcd.print("Motor Calismaz!");
+        delay(1000);
         is_motor_button_enabled = false;
       }
       else{
         digitalWrite(pinkLED,LOW);
-        //lcd.clear();
+        lcd.clear();
         is_motor_button_enabled = true;
       }
 }
@@ -175,7 +182,7 @@ void fuelControl(){
       if(motorStarted){
         StopMotor();
       }
-      lcd.print("Yakıt Bitti - Motor Durdu");
+      //lcd.print("Yakıt Bitti - Motor Durdu");
       digitalWrite(redLED,LOW);
       digitalWrite(blueLED,LOW);
       digitalWrite(yellowLED,LOW);
@@ -185,12 +192,12 @@ void fuelControl(){
       digitalWrite(yellowLED,HIGH);
       digitalWrite(yellowLED,LOW);
       sprintf(buffer, "Kritik: Yakıt Çok Az - \%%d",fuelLevel);
-      lcd.print(buffer);
+      //lcd.print(buffer);
   }
   else if(fuelLevel < 10){
       digitalWrite(yellowLED,HIGH);
       sprintf(buffer, "Uyarı: Yakıt Seviyesi Düşük - \%%d",fuelLevel);
-      lcd.print(buffer);
+      //lcd.print(buffer);
   }
 
 }
