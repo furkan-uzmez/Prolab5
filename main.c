@@ -21,13 +21,13 @@ int buzzer = 9; // Sesli uyarı için buzzer
 int motorPin = 10; // DC motor (araç motoru)
 int klimaPin = 11; // DC motor (klima fanı)
 
-// LCD pinleri (örnek olarak)
-int lcdRS = 12;
-int lcdEN = 13;
-int lcdD4 = 14;
-int lcdD5 = 15;
-int lcdD6 = 16;
-int lcdD7 = 17;
+// LCD pinleri 
+int lcdRS = 22; // PA0
+int lcdEN = 23; // PA1
+int lcdD4 = 24; // PA2
+int lcdD5 = 25; // PA3
+int lcdD6 = 26; // PA4
+int lcdD7 = 27; // PA5
 
 // Kütüphane ve nesne tanımlama
 #include <LiquidCrystal.h>
