@@ -102,7 +102,9 @@ void BeltControl(){
 void temperatureControl(){
     int temperature = analogRead(temperaturePin); //
     if(temperature > 25){
-        lcd.print("Sıcaklık: %d°C - Klima Açıldı",temperature);
+        char buffer[32];
+        sprintf(buffer, "Sicaklik: %dC - Klima Acildi", temperature);
+        lcd.print(buffer);
         digitalWrite(klimaPin,HIGH);
     }
     else{
@@ -138,9 +140,11 @@ void doorControl(){
 }
 
 void fuelControl(){
+  char buffer[32];
   int fuelValue = analogRead(fuelPin); // Potansiyometreden analog değeri oku (0-1023)
 
   float fuelLevel = ( fuelValue / 1023.0) * 100.0; // % cinsinden yakıt seviyesi
+  
 
   if(fuelLevel == 0){
       if(motorStarted){
@@ -155,12 +159,13 @@ void fuelControl(){
   else if(fuelLevel < 5){
       digitalWrite(yellowLED,HIGH);
       digitalWrite(yellowLED,LOW);
-
-      lcd.print("Kritik: Yakıt Çok Az - \%%d",fuelLevel);
+      sprintf(buffer, "Kritik: Yakıt Çok Az - \%%d",fuelLevel);
+      lcd.print(buffer);
   }
   else if(fuelLevel < 10){
       digitalWrite(yellowLED,HIGH);
-      lcd.print("Uyarı: Yakıt Seviyesi Düşük - \%%d",fuelLevel);
+      sprintf(buffer, "Uyarı: Yakıt Seviyesi Düşük - \%%d",fuelLevel);
+      lcd.print(buffer);
   }
 
 }
