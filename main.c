@@ -1,7 +1,7 @@
 // Pin tanımlamaları (global kapsamda)
 
 //FOR INPUT 
-int engineButton = 2; // DC motor (araç motoru)
+int motorButton = 2; // DC motor (araç motoru)
 int beltButton = 3; // Emniyet kemeri butonu
 int cardoorSwitch = 4; // Kapı durumu anahtarı
 
@@ -35,10 +35,13 @@ LiquidCrystal lcd(lcdRS, lcdEN, lcdD4, lcdD5, lcdD6, lcdD7);
 
 bool motorStarted = false;
 bool is_motor_button_enabled = true;
+bool is_wear_belt = false;
+bool motorButtonPressed = false;
+
 
 void setup() {
   // Pin modlarını ayarlama
-  pinMode(engineButton, INPUT);
+  pinMode(motorButton, INPUT);
   pinMode(beltButton, INPUT);
   pinMode(cardoorSwitch, INPUT);
 
@@ -54,22 +57,29 @@ void setup() {
   pinMode(buzzer, OUTPUT);
   pinMode(motorPin, OUTPUT);
   pinMode(klimaPin, OUTPUT);
+  Serial.begin(9600);
 
   lcd.begin(16, 2); // LCD’yi başlat
 }
 
 void loop() {
-  int is_motor_button_pressed = digitalRead(engineButton);
+  BeltControl();
   doorControl();
-  if(is_motor_button_enabled && is_motor_button_pressed == HIGH){
-    BeltControl();
-  }
-  else {
-    if (motorStarted){
-        StopMotor();
-    }
-  }
 
+  int motorButtonState = digitalRead(motorButton);
+
+if (is_motor_button_enabled && motorButtonState == HIGH && !motorButtonPressed) {
+    BeltSituation();
+    delay(200); // debounce
+    motorButtonPressed = true;
+}
+else if (motorButtonState == LOW) {
+    motorButtonPressed = false;
+    StopMotor();
+}
+
+  
+  
   temperatureControl();
   lightControl();
   fuelControl();
@@ -80,20 +90,35 @@ void StopMotor(){
   motorStarted = false;
 }
 
-void BeltControl(){
-    int is_wear_belt = digitalRead(beltButton);
-    if(is_wear_belt == LOW){
+void BeltControl() {
+    static int lastButtonState = LOW;
+    int buttonState = digitalRead(beltButton);
+
+    if (buttonState != lastButtonState) { // Durum değiştiyse
+        delay(50); // Titremeyi önlemek için kısa bir bekleme
+        buttonState = digitalRead(beltButton); // Durumu tekrar oku
+        if (buttonState == HIGH) {
+            is_wear_belt = !is_wear_belt; // Durumu tersine çevir
+        }
+    }
+    lastButtonState = buttonState;
+}
+
+void BeltSituation(){
+    char buffer[64];
+
+    if(is_wear_belt == false){
         digitalWrite(buzzer,HIGH);
         digitalWrite(redLED,HIGH);
-        lcd.clear();
-        lcd.print("Emniyet Kemeri Takılı Değil!");
-        delay(1000);
+        sprintf(buffer, "Emniyet Kemeri Takılı Değil!");
+        lcd.print(buffer);
         digitalWrite(buzzer,LOW);
+        
     }
     else{
         digitalWrite(buzzer,LOW);
         digitalWrite(redLED,LOW);
-        lcd.clear();
+        //lcd.clear();
         digitalWrite(motorPin,HIGH);
         motorStarted = true;
     }
@@ -109,7 +134,7 @@ void temperatureControl(){
     }
     else{
         digitalWrite(klimaPin,LOW);
-        lcd.clear();
+        //lcd.clear();
     }
 }
 
@@ -127,14 +152,14 @@ void lightControl(){
 
 void doorControl(){
       int is_door_open = digitalRead(cardoorSwitch);
-      if(is_door_open){
+      if(is_door_open == HIGH){
         digitalWrite(pinkLED,HIGH);
         lcd.print("Uyarı: Kapı Açık - Motor Çalışmaz");
         is_motor_button_enabled = false;
       }
       else{
         digitalWrite(pinkLED,LOW);
-        lcd.clear();
+        //lcd.clear();
         is_motor_button_enabled = true;
       }
 }
