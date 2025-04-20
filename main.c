@@ -70,15 +70,15 @@ void loop() {
 
   int motorButtonState = digitalRead(motorButton);
 
-if (is_motor_button_enabled && motorButtonState == HIGH && !motorButtonPressed) {
+if (digitalRead(beltButton) == HIGH || (digitalRead(motorButton) == HIGH and is_motor_button_enabled)) {
     BeltSituation();
     delay(200); // debounce
-    motorButtonPressed = true;
+    //motorButtonPressed = true;
 }
-else if (motorButtonState == LOW) {
+/*else if (motorButtonState == LOW) {
     motorButtonPressed = false;
     StopMotor();
-}
+}*/
 
   
   
@@ -116,15 +116,18 @@ void BeltSituation(){
         lcd.setCursor(0, 1);
         lcd.print("Motor Calismaz!");
         digitalWrite(buzzer,LOW);
-        delay(2000);
+        delay(100);
     }
     else{
-        digitalWrite(buzzer,LOW);
-        //noTone(buzzer);
-        digitalWrite(redLED,LOW);
-        lcd.clear();
-        digitalWrite(motorPin,HIGH);
-        motorStarted = true;
+        if(digitalRead(motorButton) == HIGH){
+            digitalWrite(buzzer,LOW);
+            //noTone(buzzer);
+            digitalWrite(redLED,LOW);
+            lcd.clear();
+            digitalWrite(motorPin,HIGH);
+            motorStarted = true;
+        }
+        
     }
 }
 
@@ -140,7 +143,7 @@ void temperatureControl(){
         lcd.print(buffer);
         lcd.setCursor(0,1);
         lcd.print("Klima Acildi!");
-        delay(1000);
+        delay(100);
         digitalWrite(klimaPin,HIGH);
     }
     else{
@@ -156,7 +159,7 @@ void lightControl(){
         digitalWrite(blueLED,HIGH);
         lcd.clear();
         lcd.print("Farlar Acik");
-        delay(500);
+        delay(100);
     }
     else{
         digitalWrite(blueLED,LOW);
@@ -167,7 +170,7 @@ void lightControl(){
         lcd.print("Farlar Kapandi");
         lcd.setCursor(0,1);
         lcd.print(buffer);
-        delay(500);
+        delay(100);
     }
 }
 
@@ -180,7 +183,7 @@ void doorControl(){
         lcd.print("Uyari: Kapi Acik");
         lcd.setCursor(0, 1);
         lcd.print("Motor Calismaz!");
-        delay(1000);
+        delay(100);
         is_motor_button_enabled = false;
       }
       else{
@@ -229,7 +232,7 @@ void fuelControl(){
       lcd.setCursor(0,1);
       sprintf(buffer,"\%%d",fuelLevel);
       lcd.print(buffer);
-      delay(1000);
+      delay(100);
   }
   else{
     lcd.clear();
