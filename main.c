@@ -17,7 +17,7 @@ int yellowLED = 7; // Yakıt seviyesi uyarısı LED’i
 int pinkLED = 8; // Kapaının açık olduğunu gösteren RGB LED 
 
 
-int buzzer = 9; // Sesli uyarı için buzzer 
+int buzzer = 12; // Sesli uyarı için buzzer 
 int motorPin = 10; // DC motor (araç motoru)
 int klimaPin = 11; // DC motor (klima fanı)
 
@@ -58,6 +58,8 @@ void setup() {
   pinMode(motorPin, OUTPUT);
   pinMode(klimaPin, OUTPUT);
   Serial.begin(9600);
+
+  analogReference(DEFAULT);
 
   lcd.begin(16, 2); // LCD’yi başlat
 }
@@ -113,12 +115,12 @@ void BeltSituation(){
         lcd.print("KemerTakiliDegil");
         lcd.setCursor(0, 1);
         lcd.print("Motor Calismaz!");
-        delay(1000);
         digitalWrite(buzzer,LOW);
-        
+        delay(2000);
     }
     else{
         digitalWrite(buzzer,LOW);
+        //noTone(buzzer);
         digitalWrite(redLED,LOW);
         lcd.clear();
         digitalWrite(motorPin,HIGH);
@@ -127,28 +129,45 @@ void BeltSituation(){
 }
 
 void temperatureControl(){
-    int temperature = analogRead(temperaturePin); //
-    if(temperature > 25){
+    int temperature = analogRead(temperaturePin); 
+    int sicaklik = (temperature * 5 / 1023) * 100; // °C’ye çevir
+
+    if(sicaklik > 25){
         char buffer[32];
-        sprintf(buffer, "Sicaklik: %dC - Klima Acildi", temperature);
-        //lcd.print(buffer);
+        lcd.clear();
+        sprintf(buffer, "Sicaklik: %d C",temperature);
+        lcd.setCursor(0,0);
+        lcd.print(buffer);
+        lcd.setCursor(0,1);
+        lcd.print("Klima Acildi!");
+        delay(1000);
         digitalWrite(klimaPin,HIGH);
     }
     else{
         digitalWrite(klimaPin,LOW);
-        //lcd.clear();
+        lcd.clear();
     }
 }
 
 void lightControl(){
-    int light_value = analogRead(lightPin); //
+    int light_value = analogRead(lightPin); 
+    Serial.println(light_value);
     if(light_value <= 250){
         digitalWrite(blueLED,HIGH);
-        //lcd.print("Farlar Açık");
+        lcd.clear();
+        lcd.print("Farlar Acik");
+        delay(500);
     }
     else{
         digitalWrite(blueLED,LOW);
-        //lcd.print("Farlar Kapandı");
+        char buffer[32];
+        sprintf(buffer, "isik degeri:%d",light_value);
+        lcd.clear();
+        lcd.setCursor(0,0);
+        lcd.print("Farlar Kapandi");
+        lcd.setCursor(0,1);
+        lcd.print(buffer);
+        delay(500);
     }
 }
 
@@ -174,7 +193,7 @@ void doorControl(){
 void fuelControl(){
   char buffer[32];
   int fuelValue = analogRead(fuelPin); // Potansiyometreden analog değeri oku (0-1023)
-
+  Serial.println(fuelValue);
   float fuelLevel = ( fuelValue / 1023.0) * 100.0; // % cinsinden yakıt seviyesi
   
 
@@ -182,7 +201,11 @@ void fuelControl(){
       if(motorStarted){
         StopMotor();
       }
-      //lcd.print("Yakıt Bitti - Motor Durdu");
+      lcd.clear();
+      lcd.setCursor(0,0);
+      lcd.print("Yakıt Bitti - Motor Durdu");
+      lcd.setCursor(0,1);
+      lcd.print("Motor Durdu");
       digitalWrite(redLED,LOW);
       digitalWrite(blueLED,LOW);
       digitalWrite(yellowLED,LOW);
@@ -191,13 +214,26 @@ void fuelControl(){
   else if(fuelLevel < 5){
       digitalWrite(yellowLED,HIGH);
       digitalWrite(yellowLED,LOW);
-      sprintf(buffer, "Kritik: Yakıt Çok Az - \%%d",fuelLevel);
-      //lcd.print(buffer);
+      lcd.clear();
+      lcd.setCursor(0,0);
+      lcd.print("Kritik: Yakıt");
+      lcd.setCursor(0,1);
+      sprintf(buffer, "Çok Az - \%%d",fuelLevel);
+      lcd.print(buffer);
   }
   else if(fuelLevel < 10){
       digitalWrite(yellowLED,HIGH);
-      sprintf(buffer, "Uyarı: Yakıt Seviyesi Düşük - \%%d",fuelLevel);
-      //lcd.print(buffer);
+      lcd.clear();
+      lcd.setCursor(0,0);
+      lcd.print("Uyarı: Düşük");
+      lcd.setCursor(0,1);
+      sprintf(buffer,"\%%d",fuelLevel);
+      lcd.print(buffer);
+      delay(1000);
+  }
+  else{
+    lcd.clear();
+    lcd.print("Fuel bozuk");
   }
 
 }
