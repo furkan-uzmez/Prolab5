@@ -37,7 +37,7 @@ bool motorStarted = false;
 bool is_motor_button_enabled = true;
 bool is_wear_belt = false;
 bool motorButtonPressed = false;
-
+int kemerkontrol = 0;
 
 void setup() {
   // Pin modlarını ayarlama
@@ -65,23 +65,22 @@ void setup() {
 }
 
 void loop() {
+  volatile int motorButtonState = digitalRead(motorButton);
   BeltControl();
   doorControl();
 
-  int motorButtonState = digitalRead(motorButton);
+  if(motorButtonState == HIGH && is_motor_button_enabled){
+      BeltSituation();
+      motorButtonState = LOW;
+      delay(200);
+  }
 
-if (digitalRead(beltButton) == HIGH || (digitalRead(motorButton) == HIGH and is_motor_button_enabled)) {
-    BeltSituation();
-    delay(200); // debounce
-    //motorButtonPressed = true;
-}
-/*else if (motorButtonState == LOW) {
-    motorButtonPressed = false;
-    StopMotor();
-}*/
+  //motorButtonState = digitalRead(motorButton);
 
-  
-  
+  if(kemerkontrol == 1 && digitalRead(motorButton) == HIGH ){
+     StartMotor();
+  }
+
   temperatureControl();
   lightControl();
   fuelControl();
@@ -90,6 +89,11 @@ if (digitalRead(beltButton) == HIGH || (digitalRead(motorButton) == HIGH and is_
 void StopMotor(){
   digitalWrite(motorPin,LOW);
   motorStarted = false;
+}
+
+void StartMotor(){
+   digitalWrite(motorPin,HIGH);
+   motorStarted = true;
 }
 
 void BeltControl() {
@@ -101,6 +105,8 @@ void BeltControl() {
         buttonState = digitalRead(beltButton); // Durumu tekrar oku
         if (buttonState == HIGH) {
             is_wear_belt = !is_wear_belt; // Durumu tersine çevir
+            delay(200);
+            BeltSituation();
         }
     }
     lastButtonState = buttonState;
@@ -117,22 +123,19 @@ void BeltSituation(){
         lcd.print("Motor Calismaz!");
         digitalWrite(buzzer,LOW);
         delay(100);
+        kemerkontrol = 0;
     }
     else{
-        if(digitalRead(motorButton) == HIGH){
-            digitalWrite(buzzer,LOW);
-            //noTone(buzzer);
-            digitalWrite(redLED,LOW);
-            lcd.clear();
-            digitalWrite(motorPin,HIGH);
-            motorStarted = true;
-        }
-        
+        digitalWrite(buzzer,LOW);
+        digitalWrite(redLED,LOW);
+        lcd.clear();  
+        kemerkontrol = 1;
     }
 }
 
 void temperatureControl(){
     int temperature = analogRead(temperaturePin); 
+    //int sicaklik = temperature;
     int sicaklik = (temperature * 5 / 1023) * 100; // °C’ye çevir
 
     if(sicaklik > 25){
@@ -196,9 +199,13 @@ void doorControl(){
 void fuelControl(){
   char buffer[32];
   int fuelValue = analogRead(fuelPin); // Potansiyometreden analog değeri oku (0-1023)
-  Serial.println(fuelValue);
+  lcd.clear();
+  lcd.print(fuelValue);
+  delay(100);
   float fuelLevel = ( fuelValue / 1023.0) * 100.0; // % cinsinden yakıt seviyesi
-  
+  lcd.clear();
+  lcd.print(fuelLevel);
+  delay(100);
 
   if(fuelLevel == 0){
       if(motorStarted){
@@ -209,6 +216,7 @@ void fuelControl(){
       lcd.print("Yakıt Bitti - Motor Durdu");
       lcd.setCursor(0,1);
       lcd.print("Motor Durdu");
+      delay(100);
       digitalWrite(redLED,LOW);
       digitalWrite(blueLED,LOW);
       digitalWrite(yellowLED,LOW);
@@ -228,15 +236,16 @@ void fuelControl(){
       digitalWrite(yellowLED,HIGH);
       lcd.clear();
       lcd.setCursor(0,0);
-      lcd.print("Uyarı: Düşük");
+      lcd.print("Uyari: Dusuk");
       lcd.setCursor(0,1);
-      sprintf(buffer,"\%%d",fuelLevel);
+      sprintf(buffer,"Yakit\%%d",fuelLevel);
       lcd.print(buffer);
       delay(100);
   }
-  else{
+  /*else{
     lcd.clear();
-    lcd.print("Fuel bozuk");
-  }
+    lcd.print("Yakıt yüksek");
+    delay(100);
+  }*/
 
 }
