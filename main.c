@@ -43,7 +43,7 @@ void setup() {
   // Pin modlarını ayarlama
   pinMode(motorButton, INPUT);
   pinMode(beltButton, INPUT);
-  pinMode(cardoorSwitch, INPUT);
+  pinMode(cardoorSwitch, INPUT_PULLUP);
 
   pinMode(temperaturePin, INPUT);
   pinMode(lightPin, INPUT);
@@ -71,7 +71,6 @@ void loop() {
 
   if(motorButtonState == HIGH && is_motor_button_enabled){
       BeltSituation();
-      motorButtonState = LOW;
       delay(200);
   }
 
@@ -104,10 +103,14 @@ void BeltControl() {
         delay(50); // Titremeyi önlemek için kısa bir bekleme
         buttonState = digitalRead(beltButton); // Durumu tekrar oku
         if (buttonState == HIGH) {
-            is_wear_belt = !is_wear_belt; // Durumu tersine çevir
-            delay(200);
-            BeltSituation();
+            is_wear_belt = true; 
+            delay(20);
         }
+        else{
+            is_wear_belt = false; 
+            delay(20);
+        }
+        BeltSituation();
     }
     lastButtonState = buttonState;
 }
@@ -121,8 +124,8 @@ void BeltSituation(){
         lcd.print("KemerTakiliDegil");
         lcd.setCursor(0, 1);
         lcd.print("Motor Calismaz!");
-        digitalWrite(buzzer,LOW);
-        delay(100);
+        //delay(75);
+        //digitalWrite(buzzer,LOW);
         kemerkontrol = 0;
     }
     else{
@@ -141,7 +144,7 @@ void temperatureControl(){
     if(sicaklik > 25){
         char buffer[32];
         lcd.clear();
-        sprintf(buffer, "Sicaklik: %d C",temperature);
+        sprintf(buffer, "Sicaklik: %d C",sicaklik);
         lcd.setCursor(0,0);
         lcd.print(buffer);
         lcd.setCursor(0,1);
@@ -157,7 +160,7 @@ void temperatureControl(){
 
 void lightControl(){
     int light_value = analogRead(lightPin); 
-    Serial.println(light_value);
+    //Serial.println(light_value);
     if(light_value <= 250){
         digitalWrite(blueLED,HIGH);
         lcd.clear();
@@ -197,23 +200,16 @@ void doorControl(){
 }
 
 void fuelControl(){
-  char buffer[32];
   int fuelValue = analogRead(fuelPin); // Potansiyometreden analog değeri oku (0-1023)
-  lcd.clear();
-  lcd.print(fuelValue);
-  delay(100);
   float fuelLevel = ( fuelValue / 1023.0) * 100.0; // % cinsinden yakıt seviyesi
-  lcd.clear();
-  lcd.print(fuelLevel);
-  delay(100);
-
-  if(fuelLevel == 0){
+ 
+  if(fuelLevel == 0.0){
       if(motorStarted){
         StopMotor();
       }
       lcd.clear();
       lcd.setCursor(0,0);
-      lcd.print("Yakıt Bitti - Motor Durdu");
+      lcd.print("Yakıt Bitti");
       lcd.setCursor(0,1);
       lcd.print("Motor Durdu");
       delay(100);
@@ -222,30 +218,24 @@ void fuelControl(){
       digitalWrite(yellowLED,LOW);
       digitalWrite(pinkLED,LOW);
   }
-  else if(fuelLevel < 5){
+  else if(fuelLevel < 5.0){
       digitalWrite(yellowLED,HIGH);
+      delay(200);
       digitalWrite(yellowLED,LOW);
       lcd.clear();
       lcd.setCursor(0,0);
-      lcd.print("Kritik: Yakıt");
+      lcd.print("Kritik:Yakit");
       lcd.setCursor(0,1);
-      sprintf(buffer, "Çok Az - \%%d",fuelLevel);
-      lcd.print(buffer);
+      lcd.print(fuelLevel);
+      delay(100);
   }
-  else if(fuelLevel < 10){
+  else if(fuelLevel < 10.0){
       digitalWrite(yellowLED,HIGH);
       lcd.clear();
       lcd.setCursor(0,0);
-      lcd.print("Uyari: Dusuk");
+      lcd.print("Uyari:DusukYakit");
       lcd.setCursor(0,1);
-      sprintf(buffer,"Yakit\%%d",fuelLevel);
-      lcd.print(buffer);
+      lcd.print(fuelLevel);
       delay(100);
   }
-  /*else{
-    lcd.clear();
-    lcd.print("Yakıt yüksek");
-    delay(100);
-  }*/
-
 }
