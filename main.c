@@ -76,7 +76,7 @@ void loop() {
 
   //motorButtonState = digitalRead(motorButton);
 
-  if(kemerkontrol == 1 && digitalRead(motorButton) == HIGH ){
+  if(kemerkontrol == 1 && digitalRead(motorButton) == HIGH && is_motor_button_enabled){
      StartMotor();
   }
 
