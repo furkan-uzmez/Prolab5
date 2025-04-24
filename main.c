@@ -74,8 +74,6 @@ void loop() {
       delay(200);
   }
 
-  //motorButtonState = digitalRead(motorButton);
-
   if(kemerkontrol == 1 && digitalRead(motorButton) == HIGH && is_motor_button_enabled){
      StartMotor();
   }
@@ -124,8 +122,6 @@ void BeltSituation(){
         lcd.print("KemerTakiliDegil");
         lcd.setCursor(0, 1);
         lcd.print("Motor Calismaz!");
-        //delay(75);
-        //digitalWrite(buzzer,LOW);
         kemerkontrol = 0;
     }
     else{
@@ -138,7 +134,6 @@ void BeltSituation(){
 
 void temperatureControl(){
     int temperature = analogRead(temperaturePin); 
-    //int sicaklik = temperature;
     int sicaklik = (temperature * 5 / 1023) * 100; // °C’ye çevir
 
     if(sicaklik > 25){
@@ -160,7 +155,6 @@ void temperatureControl(){
 
 void lightControl(){
     int light_value = analogRead(lightPin); 
-    //Serial.println(light_value);
     if(light_value <= 250){
         digitalWrite(blueLED,HIGH);
         lcd.clear();
@@ -183,7 +177,7 @@ void lightControl(){
 void doorControl(){
       int is_door_open = digitalRead(cardoorSwitch);
       if(is_door_open == HIGH){
-        digitalWrite(pinkLED,HIGH);
+        digitalWrite(pinkLED,LOW);
         lcd.clear();
         lcd.setCursor(0, 0);
         lcd.print("Uyari: Kapi Acik");
@@ -193,7 +187,7 @@ void doorControl(){
         is_motor_button_enabled = false;
       }
       else{
-        digitalWrite(pinkLED,LOW);
+        digitalWrite(pinkLED,HIGH);
         lcd.clear();
         is_motor_button_enabled = true;
       }
