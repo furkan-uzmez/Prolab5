@@ -69,8 +69,8 @@ void setup() {
 void loop() {
   int motorButtonState = digitalRead(motorButton);
   fuelControl();
-  BeltControl();
   doorControl();
+  BeltControl();
   temperatureControl();
   lightControl();
   
@@ -82,8 +82,11 @@ void loop() {
   if(kemerkontrol == 1 && digitalRead(motorButton) == HIGH && is_motor_button_enabled == true && is_fuel == true){
      StartMotor();
   }
+  else{
+     StopMotor();
+  }
 
-  
+
 }
 
 void StopMotor(){
@@ -127,6 +130,7 @@ void BeltSituation(){
         lcd.print("KemerTakiliDegil");
         lcd.setCursor(0, 1);
         lcd.print("Motor Calismaz!");
+        delay(300);
         kemerkontrol = 0;
     }
     else{
@@ -141,10 +145,6 @@ void temperatureControl(){
     char buffer[32];
     int temperature = analogRead(temperaturePin); 
     int sicaklik = ((temperature * 5.0) / 1023.0) * 100.0; // °C’ye çevir
-    lcd.clear();
-    sprintf(buffer, "Sicaklik: %d C",sicaklik);
-    lcd.print(buffer);
-    delay(100);
     if(sicaklik > 25){
         lcd.clear();
         sprintf(buffer, "Sicaklik: %d C",sicaklik);
@@ -152,7 +152,7 @@ void temperatureControl(){
         lcd.print(buffer);
         lcd.setCursor(0,1);
         lcd.print("Klima Acildi!");
-        delay(100);
+        delay(300);
         digitalWrite(klimaPin,HIGH);
     }
     else{
@@ -163,22 +163,25 @@ void temperatureControl(){
 
 void lightControl(){
     int light_value = analogRead(lightPin); 
+    char buffer[32];
+    sprintf(buffer, "isik degeri:%d",light_value);
     if(light_value <= 250 && is_fuel == true){
         digitalWrite(blueLED,HIGH);
         lcd.clear();
+        lcd.setCursor(0,0);
         lcd.print("Farlar Acik");
-        delay(100);
+        lcd.setCursor(0,1);
+        lcd.print(buffer);
+        delay(300);
     }
     else{
         digitalWrite(blueLED,LOW);
-        char buffer[32];
-        sprintf(buffer, "isik degeri:%d",light_value);
         lcd.clear();
         lcd.setCursor(0,0);
         lcd.print("Farlar Kapandi");
         lcd.setCursor(0,1);
         lcd.print(buffer);
-        delay(100);
+        delay(300);
     }
 }
 
@@ -192,13 +195,14 @@ void doorControl(){
         lcd.print("Uyari: Kapi Acik");
         lcd.setCursor(0, 1);
         lcd.print("Motor Calismaz!");
+        delay(300);
       }
       else{
         digitalWrite(pinkLED,HIGH);
         lcd.clear();
         is_motor_button_enabled = true;
       }
-      delay(100);
+      
 }
 
 void fuelControl(){
@@ -210,10 +214,10 @@ void fuelControl(){
       StopMotor();
       lcd.clear();
       lcd.setCursor(0,0);
-      lcd.print("Yakıt Bitti");
+      lcd.print("Yakit Bitti");
       lcd.setCursor(0,1);
       lcd.print("Motor Durdu");
-      delay(100);
+      delay(300);
       digitalWrite(redLED,LOW);
       digitalWrite(blueLED,LOW);
       digitalWrite(yellowLED,LOW);
@@ -226,10 +230,10 @@ void fuelControl(){
       digitalWrite(yellowLED,LOW);
       lcd.clear();
       lcd.setCursor(0,0);
-      lcd.print("Kritik:Yakit");
+      lcd.print("Kritik:YakitCokAz");
       lcd.setCursor(0,1);
       lcd.print(fuelLevel);
-      delay(100);
+      delay(300);
   }
   else if(fuelLevel < 10.0){
       digitalWrite(yellowLED,HIGH);
@@ -238,7 +242,7 @@ void fuelControl(){
       lcd.print("Uyari:DusukYakit");
       lcd.setCursor(0,1);
       lcd.print(fuelLevel);
-      delay(100);
+      delay(300);
   }
   else{
       digitalWrite(yellowLED,LOW);
