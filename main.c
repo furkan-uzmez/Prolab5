@@ -33,9 +33,7 @@ int lcdD7 = 27; // PA5
 #include <LiquidCrystal.h>
 LiquidCrystal lcd(lcdRS, lcdEN, lcdD4, lcdD5, lcdD6, lcdD7);
 
-bool motorStarted = false;
 bool is_motor_button_enabled = false;
-bool is_wear_belt = false;
 bool motorButtonPressed = false;
 int kemerkontrol = 0;
 bool is_fuel = false;
@@ -70,59 +68,34 @@ void loop() {
   int motorButtonState = digitalRead(motorButton);
   fuelControl();
   doorControl();
-  BeltControl();
   temperatureControl();
   lightControl();
   
-  if(motorButtonState == HIGH && is_motor_button_enabled == true && is_fuel == true){
+  if(is_fuel == true){
       BeltSituation();
-      delay(200);
+      delay(20);
   }
 
-  if(kemerkontrol == 1 && digitalRead(motorButton) == HIGH && is_motor_button_enabled == true && is_fuel == true){
+  if(kemerkontrol == 1 && motorButtonState == HIGH && is_motor_button_enabled == true && is_fuel == true){
      StartMotor();
   }
   else{
      StopMotor();
   }
 
-
 }
 
 void StopMotor(){
   digitalWrite(motorPin,LOW);
-  motorStarted = false;
 }
 
 void StartMotor(){
    digitalWrite(motorPin,HIGH);
-   motorStarted = true;
-}
-
-void BeltControl() {
-    static int lastButtonState = LOW;
-    int buttonState = digitalRead(beltButton);
-
-    if (buttonState != lastButtonState) { // Durum değiştiyse
-        delay(50); // Titremeyi önlemek için kısa bir bekleme
-        buttonState = digitalRead(beltButton); // Durumu tekrar oku
-        if (buttonState == HIGH) {
-            is_wear_belt = true; 
-            delay(20);
-        }
-        else{
-            is_wear_belt = false; 
-            delay(20);
-        }
-        if(is_motor_button_enabled == true && is_fuel == true){
-            BeltSituation();
-        }
-    }
-    lastButtonState = buttonState;
 }
 
 void BeltSituation(){
-    if(is_wear_belt == false){
+    int buttonState = digitalRead(beltButton);
+    if(buttonState == LOW){
         digitalWrite(buzzer,HIGH);
         digitalWrite(redLED,HIGH);
         lcd.clear();
