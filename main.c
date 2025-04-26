@@ -67,20 +67,19 @@ void setup() {
 void loop() {
   int motorButtonState = digitalRead(motorButton);
   fuelControl();
-  doorControl();
-  temperatureControl();
-  lightControl();
   
   if(is_fuel == true){
+      doorControl();
       BeltSituation();
+      lightControl();
+      temperatureControl();
       delay(20);
-  }
-
-  if(kemerkontrol == 1 && motorButtonState == HIGH && is_motor_button_enabled == true && is_fuel == true){
-     StartMotor();
-  }
-  else{
-     StopMotor();
+      if(kemerkontrol == 1 && motorButtonState == HIGH && is_motor_button_enabled == true){
+         StartMotor();
+      }
+      else{
+         StopMotor();
+      }
   }
 
 }
@@ -138,7 +137,7 @@ void lightControl(){
     int light_value = analogRead(lightPin); 
     char buffer[32];
     sprintf(buffer, "isik degeri:%d",light_value);
-    if(light_value <= 250 && is_fuel == true){
+    if(light_value <= 250){
         digitalWrite(blueLED,HIGH);
         lcd.clear();
         lcd.setCursor(0,0);
@@ -160,7 +159,7 @@ void lightControl(){
 
 void doorControl(){
       int is_door_open = digitalRead(cardoorSwitch);
-      if(is_door_open == HIGH && is_fuel == true){
+      if(is_door_open == HIGH){
         is_motor_button_enabled = false;
         digitalWrite(pinkLED,LOW);
         lcd.clear();
@@ -196,6 +195,7 @@ void fuelControl(){
       digitalWrite(yellowLED,LOW);
       digitalWrite(pinkLED,HIGH);
       digitalWrite(buzzer,LOW);
+      digitalWrite(klimaPin,LOW);
   }
   else if(fuelLevel < 5.0){
       digitalWrite(yellowLED,HIGH);
