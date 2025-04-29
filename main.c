@@ -73,7 +73,6 @@ void loop() {
       BeltSituation();
       lightControl();
       temperatureControl();
-      delay(20);
       if(kemerkontrol == 1 && motorButtonState == HIGH && is_motor_button_enabled == true){
          StartMotor();
       }
@@ -102,7 +101,7 @@ void BeltSituation(){
         lcd.print("KemerTakiliDegil");
         lcd.setCursor(0, 1);
         lcd.print("Motor Calismaz!");
-        delay(300);
+        delay(150);
         kemerkontrol = 0;
     }
     else{
@@ -124,7 +123,7 @@ void temperatureControl(){
         lcd.print(buffer);
         lcd.setCursor(0,1);
         lcd.print("Klima Acildi!");
-        delay(300);
+        delay(150);
         digitalWrite(klimaPin,HIGH);
     }
     else{
@@ -144,7 +143,7 @@ void lightControl(){
         lcd.print("Farlar Acik");
         lcd.setCursor(0,1);
         lcd.print(buffer);
-        delay(300);
+        delay(150);
     }
     else{
         digitalWrite(blueLED,LOW);
@@ -153,7 +152,7 @@ void lightControl(){
         lcd.print("Farlar Kapandi");
         lcd.setCursor(0,1);
         lcd.print(buffer);
-        delay(300);
+        delay(150);
     }
 }
 
@@ -167,7 +166,7 @@ void doorControl(){
         lcd.print("Uyari: Kapi Acik");
         lcd.setCursor(0, 1);
         lcd.print("Motor Calismaz!");
-        delay(300);
+        delay(150);
       }
       else{
         digitalWrite(pinkLED,HIGH);
@@ -189,7 +188,7 @@ void fuelControl(){
       lcd.print("Yakit Bitti");
       lcd.setCursor(0,1);
       lcd.print("Motor Durdu");
-      delay(300);
+      delay(150);
       digitalWrite(redLED,LOW);
       digitalWrite(blueLED,LOW);
       digitalWrite(yellowLED,LOW);
@@ -199,14 +198,14 @@ void fuelControl(){
   }
   else if(fuelLevel < 5.0){
       digitalWrite(yellowLED,HIGH);
-      delay(200);
+      delay(100);
       digitalWrite(yellowLED,LOW);
       lcd.clear();
       lcd.setCursor(0,0);
       lcd.print("Kritik:YakitCokAz");
       lcd.setCursor(0,1);
       lcd.print(fuelLevel);
-      delay(300);
+      delay(150);
   }
   else if(fuelLevel < 10.0){
       digitalWrite(yellowLED,HIGH);
@@ -215,7 +214,7 @@ void fuelControl(){
       lcd.print("Uyari:DusukYakit");
       lcd.setCursor(0,1);
       lcd.print(fuelLevel);
-      delay(300);
+      delay(150);
   }
   else{
       digitalWrite(yellowLED,LOW);
